@@ -82,6 +82,20 @@ Visit `http://localhost:5173`. For phone/tablet testing on the same Wi-Fi, use y
 
 ---
 
+## Deploying the full application to Vercel
+
+This repository keeps the React frontend and FastAPI backend in separate folders. Vercel Services builds both services in one project and routes `/api/*` to FastAPI and all other paths to the Vite frontend.
+
+1. Import the repository into Vercel and set **Root Directory** to `tommy-hub` (the folder containing `vercel.json`). Do not select only `backend` or only `frontend`.
+2. Vercel reads `vercel.json`, builds `frontend/` with Node, and builds `backend/` with Python 3.12.
+3. Add `DATABASE_URL`, `JWT_SECRET_KEY`, `CORS_ORIGINS`, and `SMS_PROVIDER` to the Vercel project Environment Variables. Do not put database credentials in a `VITE_` variable.
+4. Set `CORS_ORIGINS` to the production Vercel origin and `SMS_PROVIDER` to `mock` unless a real SMS provider is configured.
+5. Redeploy after saving environment variables.
+
+The backend remains runnable with Docker Compose or from `backend/` using its own `requirements.txt`. The Supabase/PostgreSQL database setup files are `database/schema.supabase.sql` and `database/seed.supabase.sql`.
+
+---
+
 ## Testing Responsiveness
 - Resize the browser or use Chrome DevTools device toolbar: confirm 2-column category grid on phone widths (~360–767px), 4-column on tablet (768–1023px), 7-column + split-screen invoice on desktop (≥1024px).
 - Confirm zero horizontal scroll at 360px width.
