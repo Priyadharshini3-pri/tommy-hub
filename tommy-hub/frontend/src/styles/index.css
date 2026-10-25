@@ -1,0 +1,51 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html, body {
+  overflow-x: hidden;
+  font-variant-numeric: tabular-nums;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * { animation-duration: 0.001ms !important; transition-duration: 0.001ms !important; }
+}
+
+/* ============ Thermal / A4 print rules ============ */
+@media print {
+  body * { visibility: hidden; }
+  #invoice-print, #invoice-print * { visibility: visible; }
+  #invoice-print {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    color: #000;
+    background: #fff;
+  }
+  .no-print { display: none !important; }
+
+  /* 80mm thermal roll (default) */
+  #invoice-print {
+    width: 80mm;
+    font-family: 'Courier New', monospace;
+    font-size: 11px;
+  }
+  #invoice-print table { width: 100%; border-collapse: collapse; }
+  #invoice-print .invoice-total { font-weight: bold; border-top: 1px dashed #000; padding-top: 4px; }
+}
+
+/* 58mm roll — toggle via .print-58mm class on #invoice-print before printing */
+@media print {
+  #invoice-print.print-58mm { width: 58mm; font-size: 9px; }
+}
+
+/* A4 fallback */
+@media print {
+  #invoice-print.print-a4 {
+    width: 210mm;
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+    padding: 20mm;
+  }
+}
