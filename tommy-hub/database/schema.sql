@@ -43,7 +43,7 @@ CREATE TABLE IF NOT EXISTS bill_counters (
 CREATE TABLE IF NOT EXISTS bills (
   id INT AUTO_INCREMENT PRIMARY KEY,
   bill_number VARCHAR(20) NOT NULL UNIQUE,
-  customer_id INT NOT NULL,
+  customer_id INT NULL,
   subtotal DECIMAL(10,2) NOT NULL,
   discount_amount DECIMAL(10,2) NOT NULL DEFAULT 0,
   grand_total DECIMAL(10,2) NOT NULL,

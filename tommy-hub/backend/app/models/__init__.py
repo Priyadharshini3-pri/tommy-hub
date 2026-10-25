@@ -49,7 +49,7 @@ class Bill(Base):
     __tablename__ = "bills"
     id = Column(Integer, primary_key=True, index=True)
     bill_number = Column(String(20), unique=True, nullable=False, index=True)
-    customer_id = Column(Integer, ForeignKey("customers.id", ondelete="RESTRICT"), nullable=False)
+    customer_id = Column(Integer, ForeignKey("customers.id", ondelete="RESTRICT"), nullable=True)
     subtotal = Column(DECIMAL(10, 2), nullable=False)
     discount_amount = Column(DECIMAL(10, 2), nullable=False, default=0)
     grand_total = Column(DECIMAL(10, 2), nullable=False)

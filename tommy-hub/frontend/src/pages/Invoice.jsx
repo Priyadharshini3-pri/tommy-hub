@@ -100,20 +100,22 @@ export default function Invoice() {
           <p className="text-center text-xs text-charcoal mt-4">Thank you for shopping at TOMMY HUB!</p>
         </div>
 
-        <div className="no-print grid grid-cols-2 gap-3">
+        <div className={`no-print grid ${bill.customer_id ? 'grid-cols-2' : 'grid-cols-1'} gap-3`}>
           <button
             onClick={handlePrint}
             className="min-h-touch rounded-xl bg-charcoal text-white font-semibold flex items-center justify-center gap-2"
           >
             <Printer size={18} /> Print Bill
           </button>
-          <button
-            onClick={handleSms}
-            disabled={sendingSms}
-            className="min-h-touch rounded-xl bg-emerald text-white font-semibold flex items-center justify-center gap-2 disabled:opacity-50"
-          >
-            <MessageSquareText size={18} /> {sendingSms ? 'Sending…' : 'Send SMS'}
-          </button>
+          {bill.customer_id && (
+            <button
+              onClick={handleSms}
+              disabled={sendingSms}
+              className="min-h-touch rounded-xl bg-emerald text-white font-semibold flex items-center justify-center gap-2 disabled:opacity-50"
+            >
+              <MessageSquareText size={18} /> {sendingSms ? 'Sending…' : 'Send SMS'}
+            </button>
+          )}
         </div>
 
         <button

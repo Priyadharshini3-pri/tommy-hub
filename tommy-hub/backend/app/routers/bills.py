@@ -36,9 +36,11 @@ def _generate_bill_number(db: Session) -> str:
 
 @router.post("", response_model=BillOut, status_code=201)
 def create_bill(payload: BillCreate, db: Session = Depends(get_db)):
-    customer = db.query(Customer).filter(Customer.id == payload.customer_id).first()
-    if not customer:
-        raise HTTPException(status_code=404, detail="Customer not found")
+    customer = None
+    if payload.customer_id is not None:
+        customer = db.query(Customer).filter(Customer.id == payload.customer_id).first()
+        if not customer:
+            raise HTTPException(status_code=404, detail="Customer not found")
 
     if payload.idempotency_key:
         existing = (
@@ -80,7 +82,7 @@ def create_bill(payload: BillCreate, db: Session = Depends(get_db)):
 
     bill = Bill(
         bill_number=bill_number,
-        customer_id=customer.id,
+        customer_id=customer.id if customer else None,
         subtotal=subtotal,
         discount_amount=total_discount,
         grand_total=grand_total,
@@ -118,6 +120,9 @@ def send_bill_sms(bill_number: str, db: Session = Depends(get_db)):
     )
     if not bill:
         raise HTTPException(status_code=404, detail="Bill not found")
+
+    if not bill.customer:
+        return SMSResponse(sent=False, message="SMS is unavailable without customer details.")
 
     message = build_bill_sms(bill.customer.name, bill.bill_number, str(bill.grand_total))
     provider = get_sms_provider()

@@ -20,9 +20,8 @@ export default function BillingEntry() {
   async function handleCheckout() {
     setCheckingOut(true)
     try {
-      const idempotencyKey = `draft-${state.customer.id}-${totals.lineItems.length}-${totals.grandTotal}`
+      const idempotencyKey = `draft-${totals.lineItems.length}-${totals.grandTotal}`
       const bill = await createBill({
-        customer_id: state.customer.id,
         payment_mode: state.paymentMode,
         idempotency_key: idempotencyKey,
         items: totals.lineItems.map((i) => ({

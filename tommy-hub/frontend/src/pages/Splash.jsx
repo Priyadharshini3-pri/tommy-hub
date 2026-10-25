@@ -9,7 +9,7 @@ export default function Splash() {
         Premium Apparel Billing Terminal
       </p>
       <button
-        onClick={() => navigate('/login')}
+        onClick={() => navigate('/categories')}
         className="mt-10 min-h-touch px-8 rounded-xl bg-gold text-navy font-bold hover:brightness-95 active:scale-[0.99] transition"
       >
         Start New Billing

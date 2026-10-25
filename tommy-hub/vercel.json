@@ -1,0 +1,10 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "buildCommand": "python build.py",
+  "outputDirectory": "public",
+  "rewrites": [
+    { "source": "/categories", "destination": "/index.html" },
+    { "source": "/billing", "destination": "/index.html" },
+    { "source": "/invoice/:billNumber", "destination": "/index.html" }
+  ]
+}

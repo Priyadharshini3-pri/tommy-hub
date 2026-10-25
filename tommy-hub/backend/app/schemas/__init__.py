@@ -97,7 +97,7 @@ class BillItemOut(BillItemIn):
 
 # ---------- Bill ----------
 class BillCreate(BaseModel):
-    customer_id: int
+    customer_id: Optional[int] = None
     payment_mode: Literal["Cash", "UPI", "Card"]
     items: List[BillItemIn]
     idempotency_key: Optional[str] = None
@@ -114,7 +114,7 @@ class BillOut(BaseModel):
     model_config = ConfigDict(from_attributes=True)
     id: int
     bill_number: str
-    customer_id: int
+    customer_id: Optional[int]
     subtotal: Decimal
     discount_amount: Decimal
     grand_total: Decimal

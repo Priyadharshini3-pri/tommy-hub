@@ -1,0 +1,12 @@
+.env
+backend/.env
+frontend/.env
+frontend/node_modules
+frontend/dist
+node_modules
+.git
+__pycache__
+*.pyc
+database
+docker-compose.yml
+nginx
