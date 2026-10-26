@@ -4,7 +4,7 @@ from fastapi import FastAPI, Request, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from pydantic import ValidationError
-from sqlalchemy import text
+from sqlalchemy import inspect, text
 from sqlalchemy.exc import SQLAlchemyError
 
 from .routers import auth, customers, products, bills
@@ -57,8 +57,53 @@ def database_health_check():
     db = SessionLocal()
     try:
         db.execute(text("SELECT 1"))
-        return {"status": "ok", "service": "tommy-hub-api", "database": "ok"}
-    except SQLAlchemyError:
-        raise HTTPException(status_code=503, detail="Database unavailable")
+    except SQLAlchemyError as exc:
+        logging.error("Database connection check failed: %s", exc, exc_info=True)
+        return JSONResponse(
+            status_code=503,
+            content={
+                "status": "error",
+                "service": "tommy-hub-api",
+                "database": "unavailable",
+                "connection": "failed",
+                "schema": "not_checked",
+            },
+        )
+
+    try:
+        tables = set(inspect(db.bind).get_table_names())
+        required_tables = {"products", "bills", "bill_items", "bill_counters"}
+        missing_tables = sorted(required_tables - tables)
+        if missing_tables:
+            return JSONResponse(
+                status_code=503,
+                content={
+                    "status": "error",
+                    "service": "tommy-hub-api",
+                    "database": "ok",
+                    "connection": "ok",
+                    "schema": "missing_tables",
+                    "missing_tables": missing_tables,
+                },
+            )
+        return {
+            "status": "ok",
+            "service": "tommy-hub-api",
+            "database": "ok",
+            "connection": "ok",
+            "schema": "ok",
+        }
+    except SQLAlchemyError as exc:
+        logging.error("Database schema check failed: %s", exc, exc_info=True)
+        return JSONResponse(
+            status_code=503,
+            content={
+                "status": "error",
+                "service": "tommy-hub-api",
+                "database": "ok",
+                "connection": "ok",
+                "schema": "check_failed",
+            },
+        )
     finally:
         db.close()
