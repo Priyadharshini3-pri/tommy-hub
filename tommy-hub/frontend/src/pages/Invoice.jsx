@@ -58,7 +58,7 @@ export default function Invoice() {
         <div id="invoice-print" className="bg-white rounded-2xl shadow-card p-6">
           <div className="text-center mb-4">
             <h1 className="font-display text-2xl text-navy">TOMMY HUB</h1>
-            <p className="text-xs text-charcoal">123 High Street, Chennai · GSTIN: 33ABCDE1234F1Z5</p>
+            <p className="text-xs text-charcoal">Opposite HP Petrol Bunk, Lorry Shed, Jolarpettai, Tirupattur District, Tamil Nadu 635853 · GSTIN: 33ABCDE1234F1Z5</p>
             <p className="text-xs text-charcoal mt-1">
               {new Date(bill.created_at).toLocaleString('en-IN')}
             </p>
