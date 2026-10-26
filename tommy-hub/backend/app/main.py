@@ -55,18 +55,27 @@ def health_check():
 
 @app.get("/api/health/db")
 def database_health_check():
-    parsed_url = urlparse(DATABASE_URL)
     try:
-        port = parsed_url.port
+        parsed_url = urlparse(DATABASE_URL)
+        try:
+            port = parsed_url.port
+        except ValueError:
+            port = None
+        database_target = {
+            "configured": bool(os.getenv("DATABASE_URL")),
+            "scheme": parsed_url.scheme,
+            "host": parsed_url.hostname or "",
+            "port": port,
+            "username": parsed_url.username or "",
+        }
     except ValueError:
-        port = None
-    database_target = {
-        "configured": bool(os.getenv("DATABASE_URL")),
-        "scheme": parsed_url.scheme,
-        "host": parsed_url.hostname or "",
-        "port": port,
-        "username": parsed_url.username or "",
-    }
+        database_target = {
+            "configured": bool(os.getenv("DATABASE_URL")),
+            "scheme": "invalid",
+            "host": "",
+            "port": None,
+            "username": "",
+        }
     db = SessionLocal()
     try:
         db.execute(text("SELECT 1"))
