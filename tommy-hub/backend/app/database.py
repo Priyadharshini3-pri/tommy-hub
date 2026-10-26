@@ -1,6 +1,7 @@
 import os
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, declarative_base
+from sqlalchemy.pool import NullPool
 
 DATABASE_URL = os.getenv(
     "DATABASE_URL",
@@ -16,6 +17,9 @@ elif DATABASE_URL.startswith("postgresql://"):
 engine_kwargs = {"pool_pre_ping": True, "pool_recycle": 300}
 if is_postgres:
     # Supabase transaction pooling does not support server-side prepared statements.
+    # Vercel functions are short-lived, so do not retain connections between
+    # invocations. This also avoids reusing stale Supabase pooler sessions.
+    engine_kwargs["poolclass"] = NullPool
     engine_kwargs["connect_args"] = {"prepare_threshold": None}
 
 engine = create_engine(DATABASE_URL, **engine_kwargs)

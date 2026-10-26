@@ -1,11 +1,14 @@
 import os
 import logging
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, Request, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from pydantic import ValidationError
+from sqlalchemy import text
+from sqlalchemy.exc import SQLAlchemyError
 
 from .routers import auth, customers, products, bills
+from .database import SessionLocal
 
 logging.basicConfig(level=logging.INFO)
 
@@ -35,6 +38,27 @@ async def validation_exception_handler(request: Request, exc: ValidationError):
     return JSONResponse(status_code=422, content={"detail": exc.errors()})
 
 
+@app.exception_handler(SQLAlchemyError)
+async def database_exception_handler(request: Request, exc: SQLAlchemyError):
+    logging.error("Database request failed: %s", exc, exc_info=True)
+    return JSONResponse(
+        status_code=503,
+        content={"detail": "Database unavailable. Check the Supabase connection and schema."},
+    )
+
+
 @app.get("/api/health")
 def health_check():
     return {"status": "ok", "service": "tommy-hub-api"}
+
+
+@app.get("/api/health/db")
+def database_health_check():
+    db = SessionLocal()
+    try:
+        db.execute(text("SELECT 1"))
+        return {"status": "ok", "service": "tommy-hub-api", "database": "ok"}
+    except SQLAlchemyError:
+        raise HTTPException(status_code=503, detail="Database unavailable")
+    finally:
+        db.close()
