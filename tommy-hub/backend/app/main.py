@@ -1,5 +1,6 @@
 import os
 import logging
+from urllib.parse import urlparse
 from fastapi import FastAPI, Request, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
@@ -8,7 +9,7 @@ from sqlalchemy import inspect, text
 from sqlalchemy.exc import SQLAlchemyError
 
 from .routers import auth, customers, products, bills
-from .database import SessionLocal
+from .database import DATABASE_URL, SessionLocal
 
 logging.basicConfig(level=logging.INFO)
 
@@ -54,6 +55,18 @@ def health_check():
 
 @app.get("/api/health/db")
 def database_health_check():
+    parsed_url = urlparse(DATABASE_URL)
+    try:
+        port = parsed_url.port
+    except ValueError:
+        port = None
+    database_target = {
+        "configured": bool(os.getenv("DATABASE_URL")),
+        "scheme": parsed_url.scheme,
+        "host": parsed_url.hostname or "",
+        "port": port,
+        "username": parsed_url.username or "",
+    }
     db = SessionLocal()
     try:
         db.execute(text("SELECT 1"))
@@ -67,6 +80,7 @@ def database_health_check():
                 "database": "unavailable",
                 "connection": "failed",
                 "schema": "not_checked",
+                "database_target": database_target,
             },
         )
 
@@ -84,6 +98,7 @@ def database_health_check():
                     "connection": "ok",
                     "schema": "missing_tables",
                     "missing_tables": missing_tables,
+                    "database_target": database_target,
                 },
             )
         return {
@@ -92,6 +107,7 @@ def database_health_check():
             "database": "ok",
             "connection": "ok",
             "schema": "ok",
+            "database_target": database_target,
         }
     except SQLAlchemyError as exc:
         logging.error("Database schema check failed: %s", exc, exc_info=True)
@@ -103,6 +119,7 @@ def database_health_check():
                 "database": "ok",
                 "connection": "ok",
                 "schema": "check_failed",
+                "database_target": database_target,
             },
         )
     finally:
